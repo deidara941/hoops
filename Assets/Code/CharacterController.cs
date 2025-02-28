@@ -7,32 +7,44 @@ public class CharacterController : MonoBehaviour
 {
     private Rigidbody rb;
 
-    private Vector2 moveV, lookV;
-    private Vector3 jumpDirection; 
-
-
+    [Header("Ball")]
     public Transform Ball;
     public Transform PosOvedHead;
     public Transform PosDribble;
     public Transform RespawnPoint;
+    private bool isBallInHands = true;
+    public float ballGravity = 20.0f;
+
+    [Header("MovingAndLooking")] 
+    private Vector2 moveV, lookV;
 
     private float moveSpeed = 10.0f;
-    private float chargeTime = 0f;
-    private bool isChargingThrow = false;
-    private bool isGrounded = true;
-    private bool isBallInHands = true;
-
-    public float moveBaseSpeed = 10.0f;
+    public float moveBaseSpeed = 13.0f;
     public float moveJumpSpeed = 5.0f;
-    public float maxThrowForce = 100.0f;
-    public float minThrowForce = 30.0f;
-    public float chargeSpeed = 20.0f;
-    public float ballGravity = 20.0f;
-    public float jumpForce = 8f; 
 
+    [Header("Throwing")]
+    private bool isChargingThrow = false;
+    public float maxThrowForce = 40.0f;
+    public float minThrowForce = 10.0f;
+    public float chargeSpeed = 20.0f;
+    private float chargeTime = 0f;
+
+    [Header("Jumping")]
+    private Vector3 jumpDirection;
+    private bool isGrounded = true;
+    public float jumpForce = 8.0f;
+
+    [Header("Dashing")]
+    private bool isDashing = false;
+    public float dashForce = 35.0f;
+    public float dashUpwardForce = 0.2f;
+    public float dashDuration = 0.25f;
+    public float dashCooldown = 3.0f;
+    private float dashCooldownTimer = 0f;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
     void Update() {
@@ -55,6 +67,10 @@ public class CharacterController : MonoBehaviour
             chargeTime += Time.deltaTime * chargeSpeed;
             chargeTime = Mathf.Clamp(chargeTime, 0f, maxThrowForce); // Prevent overcharging
         }
+
+        if (dashCooldownTimer > 0) {
+            dashCooldownTimer -= Time.deltaTime;
+        }
     }
 
     void FixedUpdate() {
@@ -66,6 +82,8 @@ public class CharacterController : MonoBehaviour
     }
 
     public void movePlayer() {
+
+        if (isDashing) return;
 
         Vector3 aimDirection = new Vector3(lookV.x, 0f, lookV.y);
         Vector3 movement = new Vector3(moveV.x, 0f, moveV.y);
@@ -86,7 +104,10 @@ public class CharacterController : MonoBehaviour
         transform.Translate(jumpDirection * moveSpeed * Time.deltaTime, Space.World);
     }
 
-    void ThrowBall() {
+    public void ThrowBall() {
+
+        if (isDashing) return;
+
         isBallInHands = false;
 
         Rigidbody ballRb = Ball.GetComponent<Rigidbody>();
@@ -101,7 +122,7 @@ public class CharacterController : MonoBehaviour
         chargeTime = 0f;
     }
 
-    void RespawnBall() {
+    public void RespawnBall() {
         Ball.position = RespawnPoint.position; 
         Rigidbody ballRb = Ball.GetComponent<Rigidbody>();
 
@@ -128,6 +149,7 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+
     public void onMove(InputAction.CallbackContext context) {
         moveV = context.ReadValue<Vector2>();
     }
@@ -142,6 +164,8 @@ public class CharacterController : MonoBehaviour
         }
     }
     public void onThrow(InputAction.CallbackContext context) {
+
+        if (isDashing) return;
 
         float triggerValue = context.ReadValue<float>();
 
@@ -162,10 +186,36 @@ public class CharacterController : MonoBehaviour
 
     public void onJump(InputAction.CallbackContext context) {
 
+        if (isDashing) return;
+
         // Do jump
         if (context.performed && isGrounded) {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
         }
+    }
+
+    public void onDash(InputAction.CallbackContext context) {
+        if (context.performed && dashCooldownTimer <= 0 && !isDashing) {
+            StartCoroutine(Dash());
+        }
+    }
+    IEnumerator Dash() {
+        isDashing = true;
+        moveSpeed = 0f; // Disable movement
+
+        Vector3 dashDirection = new Vector3(moveV.x, 0f, moveV.y).normalized;
+        if (dashDirection == Vector3.zero) {
+            dashDirection = transform.forward; // Dash forward if no input
+        }
+
+        rb.linearVelocity = dashDirection * dashForce; // Apply dash force
+
+        yield return new WaitForSeconds(dashDuration);
+
+        rb.linearVelocity = Vector3.zero; // Stop dash
+        moveSpeed = moveBaseSpeed; // Re-enable movement
+        isDashing = false;
+        dashCooldownTimer = dashCooldown;
     }
 }
