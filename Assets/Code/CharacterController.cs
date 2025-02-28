@@ -114,7 +114,7 @@ public class CharacterController : MonoBehaviour
         ballRb.isKinematic = false;
         ballRb.useGravity = false;
 
-        Vector3 throwDirection = transform.forward + Vector3.up * 1.5f;
+        Vector3 throwDirection = transform.forward + Vector3.up * 1.2f;
         float throwForce = Mathf.Lerp(minThrowForce, maxThrowForce, chargeTime / maxThrowForce);
 
         ballRb.AddForce(throwDirection.normalized * throwForce, ForceMode.Impulse);
