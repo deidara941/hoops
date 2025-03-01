@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 public class CharacterController : MonoBehaviour
 {
     private Rigidbody rb;
+    public Transform RightArm;
+    public Transform LeftArm;
 
     [Header("Ball")]
     public Transform Ball;
@@ -24,7 +26,7 @@ public class CharacterController : MonoBehaviour
 
     [Header("Throwing")]
     private bool isChargingThrow = false;
-    public float maxThrowForce = 40.0f;
+    public float maxThrowForce = 50.0f;
     public float minThrowForce = 10.0f;
     public float chargeSpeed = 20.0f;
     private float chargeTime = 0f;
@@ -55,11 +57,14 @@ public class CharacterController : MonoBehaviour
             if (isChargingThrow) {
                 // Ball above head
                 Ball.position = PosOvedHead.position;
+                LeftArm.localEulerAngles = Vector3.right * 180;
+                RightArm.localEulerAngles = Vector3.right * 180;
             }
 
             else {
                 //Dribbling
                 Ball.position = PosDribble.position + Vector3.up * Mathf.Abs(Mathf.Sin(Time.time * 5));
+                RightArm.localEulerAngles = Vector3.forward * 30;
             }
         }
 
@@ -109,6 +114,10 @@ public class CharacterController : MonoBehaviour
         if (isDashing) return;
 
         isBallInHands = false;
+
+        //arms down
+        LeftArm.localEulerAngles = Vector3.right * 0;
+        RightArm.localEulerAngles = Vector3.right * 0;
 
         Rigidbody ballRb = Ball.GetComponent<Rigidbody>();
         ballRb.isKinematic = false;
