@@ -46,6 +46,7 @@ public class PlayerBallControl : MonoBehaviour {
             _chargeTime = 0f;
             
             PutArmsUp();
+            EnableSlowMotion();
         }
 
         // throw
@@ -54,7 +55,18 @@ public class PlayerBallControl : MonoBehaviour {
             _isChargingThrow = false;
             
             RemoveBallFromHands();
+            DisableSlowMotion();
         }
+    }
+
+    private void EnableSlowMotion() {
+        Time.timeScale = 0.5f;
+        Time.fixedDeltaTime = Time.timeScale * 0.02f;
+    }
+
+    private void DisableSlowMotion() {
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = Time.timeScale * 0.02f;
     }
     
     private void ThrowBall() {

@@ -27,6 +27,8 @@ public class PlayerMovement : MonoBehaviour {
     private bool _isGrounded = true;
     private bool _isDashing;
     private bool _isDashOnCooldown;
+    
+    // private Vector3 _jumpVector;
 
     private void FixedUpdate() {
         // apply custom gravity value
@@ -38,7 +40,11 @@ public class PlayerMovement : MonoBehaviour {
         if (_isDashing) {
             _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + _dashVector * dashForce;
         } else {
-            _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + movementVector * movementSpeed;
+            // if (_isGrounded) {
+                _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + movementVector * movementSpeed;
+            // } else { // disable movement on jump
+            //     _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + _jumpVector * movementSpeed;
+            // }
         }
 
         // rotation
@@ -67,6 +73,8 @@ public class PlayerMovement : MonoBehaviour {
 
         _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         _isGrounded = false;
+
+        // _jumpVector = _movementVector;
     }
 
     public void OnDash(InputAction.CallbackContext context) {
