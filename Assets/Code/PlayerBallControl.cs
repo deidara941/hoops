@@ -12,15 +12,18 @@ public class PlayerBallControl : MonoBehaviour {
     [SerializeField] private Transform posOverHead;
     
     [Header("Throwing")]
-    [SerializeField] private float maxThrowForce = 20.0f;
+    [SerializeField] private float maxThrowForce = 35.0f;
     [SerializeField] private float minThrowForce = 10.0f;
-    [SerializeField] private float chargeSpeed = 20.0f;
-    [SerializeField] private float playerSpeedRetentionFraction = .5f;
+    [SerializeField] private float chargeSpeed = 70.0f;
+    [SerializeField] private float chargeSlowMotion = 0.3f;
+    [SerializeField] private float playerSpeedRetentionFraction = 0.1f;
     
     private Rigidbody _player;
     private Rigidbody _ball;
     private bool _hasBall;
 
+    private BallReplay _ballReplay;
+    
     private bool _isChargingThrow;
     private float _chargeTime;
 
@@ -56,11 +59,16 @@ public class PlayerBallControl : MonoBehaviour {
             
             RemoveBallFromHands();
             DisableSlowMotion();
+            
+            // Start recording for replay
+            if (_ballReplay != null) {
+                _ballReplay.StartRecording();
+            }
         }
     }
 
     private void EnableSlowMotion() {
-        Time.timeScale = 0.5f;
+        Time.timeScale = chargeSlowMotion;
         Time.fixedDeltaTime = Time.timeScale * 0.02f;
     }
 
@@ -88,6 +96,7 @@ public class PlayerBallControl : MonoBehaviour {
         if (_hasBall || !other.gameObject.CompareTag("Ball")) return;
         
         _ball = other.gameObject.GetComponent<Rigidbody>();
+        _ballReplay = _ball.GetComponent<BallReplay>();
         _hasBall = true;
         
         _ball.isKinematic = true;

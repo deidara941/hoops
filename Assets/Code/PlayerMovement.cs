@@ -7,9 +7,9 @@ using Vector3 = UnityEngine.Vector3;
 
 public class PlayerMovement : MonoBehaviour {
     [SerializeField] private float controllerDeadZone = .001f;
-    [SerializeField] private float gravity = 100f;
-    [SerializeField] private float movementSpeed = 25f;
-    [SerializeField] private float jumpForce = 30f;
+    [SerializeField] private float gravity = 50f;
+    [SerializeField] private float movementSpeed = 20f;
+    [SerializeField] private float jumpForce = 20f;
     [SerializeField] private float rotationSpeed = 15f;
 
     [Header("Dash")]
@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour {
     private bool _isDashing;
     private bool _isDashOnCooldown;
     
-    // private Vector3 _jumpVector;
+    private Vector3 _jumpVector;
 
     private void FixedUpdate() {
         // apply custom gravity value
@@ -40,11 +40,11 @@ public class PlayerMovement : MonoBehaviour {
         if (_isDashing) {
             _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + _dashVector * dashForce;
         } else {
-            // if (_isGrounded) {
+             if (_isGrounded) {
                 _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + movementVector * movementSpeed;
-            // } else { // disable movement on jump
-            //     _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + _jumpVector * movementSpeed;
-            // }
+             } else { // disable movement on jump
+                 _rigidbody.linearVelocity = Vector3.up * _rigidbody.linearVelocity.y + _jumpVector * movementSpeed;
+             }
         }
 
         // rotation
@@ -74,7 +74,7 @@ public class PlayerMovement : MonoBehaviour {
         _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         _isGrounded = false;
 
-        // _jumpVector = _movementVector;
+        _jumpVector = _movementVector;
     }
 
     public void OnDash(InputAction.CallbackContext context) {

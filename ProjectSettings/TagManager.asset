@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Ground
   - Ball
+  - ReplayCamera
+  - FirstTrigger
+  - SecondTrigger
   layers:
   - Default
   - TransparentFX
