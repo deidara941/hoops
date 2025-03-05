@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] private float dashForce = 70f;
     [SerializeField] private float dashDuration = .25f;
     [SerializeField] private float dashCooldownSeconds = .7f;
-    [SerializeField] AnimationCurve dashSpeedCurve;
+    [SerializeField] private AnimationCurve dashSpeedCurve;
 
     private Rigidbody _rigidbody;
 
